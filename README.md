@@ -28,3 +28,50 @@ Web Framework: Flask
 Frontend: HTML5, CSS3, JavaScript
 
 Data Handling: Pandas, NumPy
+
+
+Installation 💻
+Prerequisites
+Python 3.8+
+
+pip package manager
+
+Steps
+Clone the repository:
+
+bash
+git clone https://github.com/your-username/ai-semantic-search.git
+cd ai-semantic-search
+Create and activate a virtual environment:
+
+bash
+# Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+Install dependencies:
+
+bash
+pip install -r requirements.txt
+Set up the knowledge base:
+
+bash
+# Create data directory
+mkdir data
+
+# Create sample dataset
+echo "id,title,content,category" > data/knowledge_base.csv
+echo '1,"Quantum Computing","Quantum computers use qubits instead of classical bits...","AI"' >> data/knowledge_base.csv
+echo '2,"Neural Networks","Neural networks are computational models inspired by the human brain...","ML"' >> data/knowledge_base.csv
+echo '3,"Transformers","Transformer architecture revolutionized NLP with attention mechanisms...","NLP"' >> data/knowledge_base.csv
+Run the application:
+
+bash
+cd src
+python api.py
+Access the web interface at: http://localhost:5000
+
+
