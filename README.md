@@ -74,4 +74,39 @@ cd src
 python api.py
 Access the web interface at: http://localhost:5000
 
+Usage 🚀
+Web Interface
+Search: Enter any query in natural language
 
+Filter: Use category dropdown to filter results
+
+Add Documents: Click "Add New Document" to expand knowledge base
+
+View Results: See relevant documents with similarity scores
+
+API Endpoints
+GET /search?q=query&category=filter: Search endpoint
+
+json
+{
+  "query": "machine learning models",
+  "category_filter": "ML",
+  "processing_time": "0.215s",
+  "results": [
+    {
+      "id": 2,
+      "title": "Neural Networks",
+      "content": "Neural networks are computational models...",
+      "category": "ML",
+      "score": 0.872
+    }
+  ]
+}
+POST /add-document: Add new document
+
+json
+{
+  "title": "New Document Title",
+  "content": "Document content...",
+  "category": "New Category"
+}
