@@ -104,9 +104,51 @@ json
 }
 POST /add-document: Add new document
 
+
 json
 {
   "title": "New Document Title",
   "content": "Document content...",
   "category": "New Category"
 }
+
+
+Configuration ⚙️
+Edit config.py to customize:
+
+python
+MODEL_NAME = "all-MiniLM-L6-v2"       # Sentence-BERT model
+DEFAULT_DATASET = "data/knowledge_base.csv"
+EMBEDDINGS_PATH = "data/embeddings.npy"
+INDEX_PATH = "data/faiss_index.bin"
+BATCH_SIZE = 128                      # Embedding generation batch size
+TOP_K_RESULTS = 10                    # Default number of results
+Adding Your Data 📊
+Supported Formats
+CSV Files: Must contain columns: id, title, content, category
+
+JSON Files: Array of objects with same fields
+
+PDF Documents: Automatically convert using included utility
+
+Dataset Sources
+Wikipedia Dataset
+
+Arxiv Papers
+
+BBC News Summary
+
+Your custom documents (PDF, TXT, DOCX)
+
+Convert PDF to CSV
+python
+from PyPDF2 import PdfReader
+import pandas as pd
+
+def pdf_to_csv(pdf_path, csv_path):
+    reader = PdfReader(pdf_path)
+    data = []
+    for i, page in enumerate(reader.pages):
+        text = page.extract_text().replace('\n', ' ')
+        data.append({"id": i+1, "title": f"Page {i+1}", "content": text, "category": "PDF"})
+    pd.DataFrame(data).to_csv(csv_path, index=False)
