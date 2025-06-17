@@ -152,3 +152,32 @@ def pdf_to_csv(pdf_path, csv_path):
         text = page.extract_text().replace('\n', ' ')
         data.append({"id": i+1, "title": f"Page {i+1}", "content": text, "category": "PDF"})
     pd.DataFrame(data).to_csv(csv_path, index=False)
+
+
+
+Deployment 🚢
+Docker
+bash
+docker build -t semantic-search .
+docker run -p 5000:5000 semantic-search
+Cloud Platforms
+AWS:
+
+bash
+eb init -p python-3.10 semantic-search
+eb create prod-env
+Google Cloud Run:
+
+bash
+gcloud run deploy semantic-search --source .
+Azure App Service:
+
+bash
+az webapp up --runtime PYTHON:3.10 --sku F1
+Troubleshooting 🐛
+Issue	Solution
+ModuleNotFoundError	Run pip install -r requirements.txt
+FAISS load error	Reinstall with pip install faiss-cpu --no-cache
+No results	Check dataset path in config.py
+Slow performance	Use GPU version: pip install faiss-gpu
+Port conflict	Change port in api.py: app.run(port=5001)
