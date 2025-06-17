@@ -181,3 +181,17 @@ FAISS load error	Reinstall with pip install faiss-cpu --no-cache
 No results	Check dataset path in config.py
 Slow performance	Use GPU version: pip install faiss-gpu
 Port conflict	Change port in api.py: app.run(port=5001)
+
+
+Future Enhancements 🔮
+User authentication system
+
+Real-time collaborative editing
+
+Multi-language support
+
+Automated dataset crawling
+
+Search history and analytics
+
+Hybrid keyword-semantic search
