@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Semantic Search Engine</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); background-color: #f5f7fb; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; margin-bottom: 30px; padding: 20px 0; }
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 2.5rem; }
+        .subtitle { color: var(--gray); font-size: 1.2rem; }
+        .search-section { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
+        .search-form { display: flex; margin-bottom: 20px; }
+        #searchBox { flex: 1; padding: 15px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 8px 0 0 8px; outline: none; transition: border-color 0.3s; }
+        #searchBox:focus { border-color: var(--primary); }
+        #searchButton { padding: 0 25px; background: var(--primary); color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+        #searchButton:hover { background: var(--secondary); }
+        .filters { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .filter-group label { margin-right: 8px; font-weight: 500; }
+        select, input[type="text"] { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats { color: var(--gray); font-size: 0.9rem; }
+        .result-card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+        .result-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .result-header { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .result-title { font-size: 1.2rem; color: var(--primary); font-weight: 600; text-decoration: none; }
+        .result-title:hover { text-decoration: underline; }
+        .result-category { background: var(--success); color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .result-body { padding: 20px; }
+        .result-content { margin-bottom: 15px; line-height: 1.7; }
+        .result-footer { display: flex; justify-content: space-between; color: var(--gray); font-size: 0.9rem; }
+        .add-doc-link { display: inline-block; margin-top: 20px; color: var(--primary); text-decoration: none; }
+        .add-doc-link:hover { text-decoration: underline; }
+        .loading { text-align: center; padding: 40px; color: var(--gray); }
+        .error { background: #ffebee; color: #b71c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        footer { text-align: center; margin-top: 40px; padding: 20px; color: var(--gray); font-size: 0.9rem; }
+        @media (max-width: 768px) {
+            .search-form { flex-direction: column; }
+            #searchBox { border-radius: 8px; margin-bottom: 10px; }
+            #searchButton { border-radius: 8px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 AI Semantic Search Engine</h1>
+            <p class="subtitle">Powered by Sentence-BERT and FAISS</p>
+        </header>
+        
+        <section class="search-section">
+            <form class="search-form" id="searchForm">
+                <input type="text" id="searchBox" placeholder="Search our knowledge base..." autocomplete="off">
+                <button type="submit" id="searchButton">Search</button>
+            </form>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="categoryFilter">Filter by Category:</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div id="resultsContainer">
+                <div class="loading" id="loadingIndicator" style="display: none;">Searching...</div>
+                <div id="resultsContent"></div>
+            </div>
+            
+            <a href="{{ url_for('add_document') }}" class="add-doc-link">+ Add New Document</a>
+        </section>
+        
+        <footer>
+            <p>AI Semantic Search Engine | Built with Sentence-BERT and FAISS</p>
+        </footer>
+    </div>
+    
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const searchBox = document.getElementById('searchBox');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const resultsContainer = document.getElementById('resultsContent');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        let currentRequest = null;
+        
+        // Perform search when form is submitted
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+        
+        // Perform search when category changes
+        categoryFilter.addEventListener('change', performSearch);
+        
+        // Perform search function
+        async function performSearch() {
+            const query = searchBox.value.trim();
+            const category = categoryFilter.value;
+            
+            // Abort previous request if still pending
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+            
+            // Clear previous results and show loading
+            resultsContainer.innerHTML = '';
+            loadingIndicator.style.display = 'block';
+            
+            if (!query) {
+                loadingIndicator.style.display = 'none';
+                resultsContainer.innerHTML = '<p>Enter a search query to begin</p>';
+                return;
+            }
+            
+            try {
+                // Create new AbortController for current request
+                const controller = new AbortController();
+                currentRequest = controller;
+                
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`, {
+                    signal: controller.signal
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    resultsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                }
+            } finally {
+                loadingIndicator.style.display = 'none';
+                currentRequest = null;
+            }
+        }
+        
+        // Display search results
+        function displayResults(data) {
+            let html = '';
+            
+            if (!data.results || data.results.length === 0) {
+                html = '<p>No results found. Try a different query or add a new document.</p>';
+            } else {
+                html += `<div class="results-header">
+                    <h2>Search Results</h2>
+                    <div class="stats">Found ${data.results.length} results in ${data.processing_time}</div>
+                </div>`;
+                
+                data.results.forEach(result => {
+                    html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <a href="#" class="result-title">${result.title}</a>
+                            <span class="result-category">${result.category}</span>
+                        </div>
+                        <div class="result-body">
+                            <p class="result-content">${result.content}</p>
+                            <div class="result-footer">
+                                <span>Document ID: ${result.id}</span>
+                                <span>Relevance: ${result.score.toFixed(3)}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+            
+            resultsContainer.innerHTML = html;
+        }
+        
+        // Initial placeholder text
+        resultsContainer.innerHTML = '<p>Enter a search query to begin</p>';
+    </script>
+</body>
+</html>

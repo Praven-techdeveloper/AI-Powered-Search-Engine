@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Added - Semantic Search</title>
+    <style>
+        /* Reuse styles from search.html */
+        :root { /* Same as before */ }
+        * { /* Same as before */ }
+        body { /* Same as before */ }
+        .container { /* Same as before */ }
+        .success-message { text-align: center; padding: 40px 20px; }
+        .success-icon { font-size: 4rem; color: #4caf50; margin-bottom: 20px; }
+        .success-message h2 { margin-bottom: 20px; }
+        .document-id { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .actions { margin-top: 30px; }
+        .btn { display: inline-block; padding: 12px 25px; margin: 0 10px; border-radius: 8px; text-decoration: none; font-weight: 500; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-message">
+            <div class="success-icon">✓</div>
+            <h2>Document Added Successfully!</h2>
+            <p>Your document has been added to the knowledge base</p>
+            <div class="document-id">Document ID: {{ doc_id }}</div>
+            
+            <div class="actions">
+                <a href="{{ url_for('add_document') }}" class="btn btn-outline">Add Another Document</a>
+                <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Search</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
