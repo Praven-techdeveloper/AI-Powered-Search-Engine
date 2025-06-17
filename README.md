@@ -195,3 +195,18 @@ Automated dataset crawling
 Search history and analytics
 
 Hybrid keyword-semantic search
+
+
+
+Contributing 🤝
+Contributions are welcome! Please follow these steps:
+
+Fork the repository
+
+Create a new branch (git checkout -b feature/your-feature)
+
+Commit your changes (git commit -am 'Add some feature')
+
+Push to the branch (git push origin feature/your-feature)
+
+Open a pull request
